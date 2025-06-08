@@ -60,7 +60,7 @@ nchar(ipsum)
 <div class="side side-right">
 <p>Oddly enough, the assignment variant <code>`substr&lt;-`(ipsum, 31, nchar(ipsum), &quot;...&quot;)</code> fails to achieve this effect. What you get instead is “…” masking a span of the same length, ranging index 31-to-33 of the input string.</p>
 </div>
-<p>But if you use <code>gsub()</code> instead, you can express all that in a single line:</p>
+<p>But if you use <code>gsub()</code> instead, you can express all that in a single call:</p>
 <pre><code class="language-r">gsub(&quot;^(.{30}).*$&quot;, &quot;\\1...&quot;, ipsum)
 </code></pre>
 <pre><code>#&gt; [1] &quot;Lorem ipsum dolor sit amet, co...&quot;

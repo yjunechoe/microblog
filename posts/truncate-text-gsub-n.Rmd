@@ -37,7 +37,7 @@ paste0(substr(ipsum, 1, 30), "...")
 Oddly enough, the assignment variant `` `substr<-`(ipsum, 31, nchar(ipsum), "...") `` fails to achieve this effect. What you get instead is "..." masking a span of the same length, ranging index 31-to-33 of the input string.
 :::
 
-But if you use `gsub()` instead, you can express all that in a single line:
+But if you use `gsub()` instead, you can express all that in a single call:
 
 ```{r}
 gsub("^(.{30}).*$", "\\1...", ipsum)

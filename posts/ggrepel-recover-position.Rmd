@@ -37,7 +37,11 @@ all.equal(
 )
 ```
 
-Also not available at `ggplot_gtable()`, where no labels have yet been materialized within the layer:
+::: {.side .side-right}
+A layer's grob (à la `layer_grob()`) is a list of grobs, one for each panel. That's why we're working with a length-1 list here.
+:::
+
+Also not available at `ggplot_gtable()`, where a placeholder grob exists for the layer but no labels have been materialized yet:
 
 ```{r, collapse = TRUE}
 repel_layer_grob <- layer_grob(p, 2L)
@@ -60,7 +64,7 @@ grid.ls()
 
 I use the term "computed at draw time" to loosely refer to the work of `grid::makeContext()` and `grid::makeContext()` methods. These allow you to lazily implement **adaptive** logic using information from the current device, like "Draw a circle of 1 inch radius, and color it red if it exceeds the size of the device."
 
-In the context of ggrepel, the positioning work is done inside `ggrepel:::makeContent.textrepeltree()` which also produces the actual layer grob, of class `textrepeltree`
+In the context of ggrepel, the positioning work is done inside `ggrepel:::makeContent.textrepeltree()` which also populates layer grob, of class `textrepeltree`
 
 ```{r, collapse = TRUE, fig.path = NA}
 repel_grob <- grid.get("textrepeltree", grep = TRUE)

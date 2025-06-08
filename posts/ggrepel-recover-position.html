@@ -62,7 +62,10 @@ all.equal(
 )
 #&gt; [1] TRUE
 </code></pre>
-<p>Also not available at <code>ggplot_gtable()</code>, where no labels have yet been materialized within the layer:</p>
+<div class="side side-right">
+<p>A layer’s grob (à la <code>layer_grob()</code>) is a list of grobs, one for each panel. That’s why we’re working with a length-1 list here.</p>
+</div>
+<p>Also not available at <code>ggplot_gtable()</code>, where a placeholder grob exists for the layer but no labels have been materialized yet:</p>
 <pre><code class="language-r">repel_layer_grob &lt;- layer_grob(p, 2L)
 repel_layer_grob[[1]]
 #&gt; textrepeltree[geom_text_repel.textrepeltree.103] 
@@ -230,7 +233,7 @@ grid.ls()
 #&gt;     plot.caption..zeroGrob.170
 </code></pre>
 <p>I use the term “computed at draw time” to loosely refer to the work of <code>grid::makeContext()</code> and <code>grid::makeContext()</code> methods. These allow you to lazily implement <strong>adaptive</strong> logic using information from the current device, like “Draw a circle of 1 inch radius, and color it red if it exceeds the size of the device.”</p>
-<p>In the context of ggrepel, the positioning work is done inside <code>ggrepel:::makeContent.textrepeltree()</code> which also produces the actual layer grob, of class <code>textrepeltree</code></p>
+<p>In the context of ggrepel, the positioning work is done inside <code>ggrepel:::makeContent.textrepeltree()</code> which also populates layer grob, of class <code>textrepeltree</code></p>
 <pre><code class="language-r">repel_grob &lt;- grid.get(&quot;textrepeltree&quot;, grep = TRUE)
 class(repel_grob)
 #&gt; [1] &quot;forcedgrob&quot;    &quot;textrepeltree&quot; &quot;gTree&quot;         &quot;grob&quot;         
