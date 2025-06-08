@@ -1,1 +1,9 @@
-A microblog of code snippets by [June Choe](https://yjunechoe.github.io/)
+Welcome to my microblog!
+
+This is a place where I share small pieces of code. It's an outlet for me to write in a different style than usual -- short and to-the-point.
+
+It branches off from my [main blog](https://yjunechoe.github.io/blog) where I write longer essays and deep-dives, published once every few months.
+
+By contrast, I hope more frequently write in my microblog :)
+
+The site is built with [litedown](https://yihui.org/litedown/) and served from <https://github.com/yjunechoe/microblog>
