@@ -1,6 +1,7 @@
 fuse_site <- function() {
   file.remove("index.html")
   litedown::fuse_site()
+  litedown::fuse_site("index.html")
   browseURL("index.html")
 }
 
