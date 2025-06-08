@@ -1,0 +1,19 @@
+---
+title: "TITLE"
+date: "`{r} Sys.Date()`"
+knit: litedown:::knit
+---
+
+<!-- pre-hook -->
+```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
+```
+
+DESCRIPTION
+
+# POST
+
+---
+
+<!-- post-hook -->
+```{r post-hook, child = "_posthook.Rmd"}
+```

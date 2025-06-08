@@ -1,0 +1,1 @@
+**June Choe's Micro Blog** [Home](/index.html) [About](/about.html)

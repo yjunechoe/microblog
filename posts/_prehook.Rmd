@@ -1,0 +1,11 @@
+```{r pre-hook}
+litedown::reactor(
+  comment = " ",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  R.options = list(width = 80),
+  dev = "ragg_png"
+)
+```
+

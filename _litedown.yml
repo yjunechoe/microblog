@@ -1,0 +1,16 @@
+site:
+  rebuild: "outdated"
+  pattern: "[.]R?md$"
+
+output:
+  litedown::html_format:
+    meta:
+      css: ["@default", "@article", "@copy-button"]
+      js: ["@copy-button", "@sidenotes", "@external-link"]
+      include_before: "_header.md"
+      include_after: ["_footer.md"]
+    options:
+      toc: true
+      number_sections: false
+
+knit: litedown:::knit

@@ -1,0 +1,154 @@
+---
+title: "Recover position elements in ggrepel"
+date: "`{r} Sys.Date()`"
+knit: litedown:::knit
+---
+
+<!-- pre-hook -->
+```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
+```
+
+My take at a frequently asked question: "How can you recover the positions calculated by a [ggrepel](https://ggrepel.slowkow.com/) layer?"
+
+# Setup
+
+```{r}
+library(ggplot2)
+library(ggrepel)
+p <- ggplot(mtcars,
+            aes(wt, mpg, label = rownames(mtcars), colour = factor(cyl))) +
+  geom_point() +
+  geom_text_repel(seed = 1)
+p
+```
+
+
+# When are the positions calculated?
+
+Not available at `ggplot_build()`. At this point, `x` and `y` are the un-transformed data values, identical to the original data columns:
+
+```{r, collapse = TRUE}
+repel_layer_data <- layer_data(p, 2L)
+all.equal(
+  mtcars[, c("wt", "mpg")],
+  repel_layer_data[, c("x", "y")],
+  check.attributes = FALSE,
+  use.names = FALSE
+)
+```
+
+Also not available at `ggplot_gtable()`, where no labels have yet been materialized within the layer:
+
+```{r, collapse = TRUE}
+repel_layer_grob <- layer_grob(p, 2L)
+repel_layer_grob[[1]]
+repel_layer_grob[[1]]$children
+```
+
+Calculated positions ARE available upon rendering, at `grid.draw()`. The elements drawn onto the current device can be inspected using `grid.ls()`.
+
+::: {.side .side-right}
+For ggplots, a prior call to `grid.force()` is necessary to make visible graphical objects which are computed at draw time.
+:::
+
+```{r, fig.path = NA}
+library(grid)
+plot(p) # Plot suppressed here for space
+grid.force()
+grid.ls()
+```
+
+I use the term "computed at draw time" to loosely refer to the work of `grid::makeContext()` and `grid::makeContext()` methods. These allow you to lazily implement **adaptive** logic using information from the current device, like "Draw a circle of 1 inch radius, and color it red if it exceeds the size of the device."
+
+In the context of ggrepel, the positioning work is done inside `ggrepel:::makeContent.textrepeltree()` which also produces the actual layer grob, of class `textrepeltree`
+
+```{r, collapse = TRUE, fig.path = NA}
+repel_grob <- grid.get("textrepeltree", grep = TRUE)
+class(repel_grob)
+repel_grob
+```
+
+
+# What are the position values?
+
+The `textrepeltree` grob which represents the repel layer's grob is a `gTree`, meaning a collection of grobs. In our example, there are segments (`segmentrepelgrob`) and text (`textrepelgrob`) elements involved in the layer:
+
+```{r}
+repel_grob$children
+```
+
+Since these are the actually rendered grobs, they have position values associated with them. We can grab one of the text grobs to inspect it:
+
+```{r, collapse = TRUE}
+repel_grob_text1 <- getGrob(repel_grob, "text", grep = TRUE)
+repel_grob_text1$x
+repel_grob_text1$y
+```
+
+The grob also includes the label and color, which we will need for reconstruction later:
+
+```{r, collapse = TRUE}
+repel_grob_text1$label
+repel_grob_text1$gp$col
+```
+
+Lastly, note also that ggrepel attaches additional context from `ggplot_build()` to the `$data` element of the repel layer's grob. But use this with care: the `x` and `y` column values are not accurate here since repel is only calculated at render time.
+
+```{r, print.args = list(data.frame = list(limit = c(10, 6)))}
+repel_grob$data
+```
+
+
+# Reconstructing repelled text data
+
+We first write a helper to extract relevant features from a text grob:
+
+```{r, fig.path = NA}
+process_textGrob <- function(g) {
+  data.frame(
+    x = convertUnit(g$x, "native", valueOnly = TRUE),
+    y = convertUnit(g$y, "native", valueOnly = TRUE),
+    label = g$label,
+    colour = g$gp$col
+  )
+}
+process_textGrob(repel_grob_text1)
+```
+
+Then apply this over text grobs in the repel layer:
+
+```{r, fig.path = NA}
+repel_text_df <- repel_grob$children |>
+  Filter(x = _, \(g) grepl(x = g$name, "textrepelgrob")) |>
+  lapply(process_textGrob) |>
+  do.call(rbind, args = _)
+repel_text_df
+```
+
+
+# Re-plotting repelled text
+
+::: {.side .side-right}
+This constraint is actually not entirely accurate - you could technically convert npc coordinates back into data space by back-transforming with plot scales in `p$layout$panel_scales_(x|y)`. But that's a more brittle and involved process.
+:::
+
+It should go without saying that the repelled text can only be replicated in a new plot if it has the same dimensions as the original plot where the text positions were recovered from.
+
+As long as that is satisfied, we can replicate the original repel layer (sans the segments, since we haven't dealt with that).
+
+Take care to use `I()`, especially for `x` and `y`, so that the scales leave the values un-transformed.
+
+```{r}
+p2 <- ggplot(mtcars,
+            aes(wt, mpg, label = rownames(mtcars), colour = factor(cyl))) +
+  geom_point() +
+  geom_text(
+    aes(x = I(x), y = I(y), label = label, color = I(colour)),
+    data = repel_text_df
+  )
+p2
+```
+
+<!-- post-hook -->
+```{r post-hook, child = "_posthook.Rmd"}
+```

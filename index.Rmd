@@ -1,0 +1,61 @@
+---
+title: "Posts"
+---
+
+```{css, echo = FALSE}
+.post-listing {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.post-entry {
+  margin-bottom: 2rem;
+}
+.post-link{
+  color: black;
+  text-decoration: none;
+}
+.date {
+  color: #666;
+  font-size: 0.9em;
+  margin: 0.5rem 0;
+}
+.preview {
+  line-height: 1.5;
+  margin: 0;
+}
+```
+
+```{r listing, echo = FALSE, results = "asis"}
+library(xml2)
+library(htmltools)
+
+posts <- list.files("posts", pattern = "\\.html$", full.names = TRUE)
+
+get_post_info <- function(post) {
+  html <- read_html(post)
+  
+  # Extract frontmatter info
+  frontmatter <- xml_find_first(html, ".//div[@class='frontmatter']")
+  title <- xml_text(xml_find_first(frontmatter, ".//div[@class='title']/h1"))
+  date <- xml_text(xml_find_first(frontmatter, ".//div[@class='date']/h3"))
+  
+  # Extract first paragraph from body
+  first_p <- xml_find_first(html, ".//div[@class='body']/p")
+  preview <- gsub("^(.{200}\\S*).*$", "<p>\\1...</p>", xml_text(first_p))
+  
+  list(title = title, date = date, preview = preview, link = post)
+}
+
+posts_info <- lapply(posts, get_post_info)
+posts_info <- posts_info[order(sapply(posts_info, `[[`, "date"), decreasing = TRUE)]
+
+post_listing <- lapply(posts_info, function(post) {
+  tags$article(
+    class = "post-entry",
+    tags$h2(tags$a(post$title, href = post$link, class = "post-link")),
+    tags$p(post$date, class = "date"),
+    tags$p(post$preview, class = "preview")
+  )
+})
+tags$div(class = "post-listing", post_listing)
+```
