@@ -1,1 +1,1 @@
-**June Choe's Micro Blog** [Home](/index.html) [About](/about.html)
+**June Choe's Micro Blog** [Posts](/index.html) [About](/about.html)

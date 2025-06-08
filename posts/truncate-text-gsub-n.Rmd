@@ -27,17 +27,17 @@ To cut the text up to 30 chars, you can use `substr()`:
 substr(ipsum, 1, 30)
 ```
 
-If you wanted to add a trailing ellipse, you'd use `paste()` on that output:
+If you wanted to add a trailing ellipse, you can `paste0()` onto that output:
 
 ```{r}
 paste0(substr(ipsum, 1, 30), "...")
 ```
 
 ::: {.side .side-right}
-Oddly enough, the assignment variant `` `substr<-`(ipsum, 31, nchar(ipsum), "...") `` fails to achieve this effect. What you get instead is "..." masking a span of same length, ranging index 31-to-33 of the string.
+Oddly enough, the assignment variant `` `substr<-`(ipsum, 31, nchar(ipsum), "...") `` fails to achieve this effect. What you get instead is "..." masking a span of the same length, ranging index 31-to-33 of the input string.
 :::
 
-But if you use `gsub()` instead, you can express that in a single line:
+But if you use `gsub()` instead, you can express all that in a single line:
 
 ```{r}
 gsub("^(.{30}).*$", "\\1...", ipsum)

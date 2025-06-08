@@ -1,5 +1,10 @@
 # `sessionInfo()`
 
+<details>
+<summary>Session info</summary>
+
 ```{r session-info}
 sessionInfo()
 ```
+
+</details>

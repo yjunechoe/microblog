@@ -92,7 +92,7 @@ repel_grob_text1$label
 repel_grob_text1$gp$col
 ```
 
-Lastly, note also that ggrepel attaches additional context from `ggplot_build()` to the `$data` element of the repel layer's grob. But use this with care: the `x` and `y` column values are not accurate here since repel is only calculated at render time.
+Lastly, note also that ggrepel attaches additional context from `ggplot_build()` to the `$data` element of the repel layer's grob. But use this with care: the `x` and `y` column values **are not accurate here** since repel is only calculated at render time.
 
 ```{r, print.args = list(data.frame = list(limit = c(10, 6)))}
 repel_grob$data
@@ -129,10 +129,10 @@ repel_text_df
 # Re-plotting repelled text
 
 ::: {.side .side-right}
-This constraint is actually not entirely accurate - you could technically convert npc coordinates back into data space by back-transforming with plot scales in `p$layout$panel_scales_(x|y)`. But that's a more brittle and involved process.
+This "same dimension" constraint is actually not entirely accurate - you could technically convert npc coordinates back into data space by back-transforming with plot scales in `p$layout$panel_scales_(x|y)`. But that's a more brittle and involved process.
 :::
 
-It should go without saying that the repelled text can only be replicated in a new plot if it has the same dimensions as the original plot where the text positions were recovered from.
+It should go without saying that the repelled text can only be replicated in a new plot if it has the **same dimensions** as the original plot where the text positions were recovered from.
 
 As long as that is satisfied, we can replicate the original repel layer (sans the segments, since we haven't dealt with that).
 

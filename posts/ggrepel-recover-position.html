@@ -23,7 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
 <body>
-<nav><p><strong>June Choe’s Micro Blog</strong> <a href="../index.html">Home</a> <a href="../about.html">About</a></p></nav>
+<nav><p><strong>June Choe’s Micro Blog</strong> <a href="../index.html">Posts</a> <a href="../about.html">About</a></p></nav>
 <div class="frontmatter">
 <div class="title"><h1>Recover position elements in ggrepel</h1></div>
 <div class="date"><h3>2025-06-08</h3></div>
@@ -257,7 +257,7 @@ repel_grob_text1$y
 repel_grob_text1$gp$col
 #&gt; [1] &quot;#00BA38FF&quot;
 </code></pre>
-<p>Lastly, note also that ggrepel attaches additional context from <code>ggplot_build()</code> to the <code>$data</code> element of the repel layer’s grob. But use this with care: the <code>x</code> and <code>y</code> column values are not accurate here since repel is only calculated at render time.</p>
+<p>Lastly, note also that ggrepel attaches additional context from <code>ggplot_build()</code> to the <code>$data</code> element of the repel layer’s grob. But use this with care: the <code>x</code> and <code>y</code> column values <strong>are not accurate here</strong> since repel is only calculated at render time.</p>
 <pre><code class="language-r">repel_grob$data
 </code></pre>
 <table>
@@ -503,9 +503,9 @@ repel_text_df
 </table>
 <h1 id="chp:re-plotting-repelled-text">Re-plotting repelled text</h1>
 <div class="side side-right">
-<p>This constraint is actually not entirely accurate - you could technically convert npc coordinates back into data space by back-transforming with plot scales in <code>p$layout$panel_scales_(x|y)</code>. But that’s a more brittle and involved process.</p>
+<p>This “same dimension” constraint is actually not entirely accurate - you could technically convert npc coordinates back into data space by back-transforming with plot scales in <code>p$layout$panel_scales_(x|y)</code>. But that’s a more brittle and involved process.</p>
 </div>
-<p>It should go without saying that the repelled text can only be replicated in a new plot if it has the same dimensions as the original plot where the text positions were recovered from.</p>
+<p>It should go without saying that the repelled text can only be replicated in a new plot if it has the <strong>same dimensions</strong> as the original plot where the text positions were recovered from.</p>
 <p>As long as that is satisfied, we can replicate the original repel layer (sans the segments, since we haven’t dealt with that).</p>
 <p>Take care to use <code>I()</code>, especially for <code>x</code> and <code>y</code>, so that the scales leave the values un-transformed.</p>
 <pre><code class="language-r">p2 &lt;- ggplot(mtcars,
@@ -520,6 +520,8 @@ p2
 <p><img src="posts/ggrepel-recover-position__files/chunk-13-1.png" alt="" /></p>
 <!-- post-hook -->
 <h1 id="chp:sessioninfo"><code>sessionInfo()</code></h1>
+<details>
+<summary>Session info</summary>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
 <pre><code>#&gt; R version 4.4.1 (2024-06-14 ucrt)
@@ -557,6 +559,7 @@ p2
 #&gt; [22] pillar_1.10.1          commonmark_1.9.5       magrittr_2.0.3        
 #&gt; [25] tools_4.4.1            withr_3.0.2            gtable_0.3.6          
 </code></pre>
+</details>
 </div>
 <footer><p>© 2025 <a href="https://yjunechoe.github.io/">June Choe</a>.
 Site built with <a href="https://github.com/yihui/litedown">litedown</a>.

@@ -23,7 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
 <body>
-<nav><p><strong>June Choe’s Micro Blog</strong> <a href="../index.html">Home</a> <a href="../about.html">About</a></p></nav>
+<nav><p><strong>June Choe’s Micro Blog</strong> <a href="../index.html">Posts</a> <a href="../about.html">About</a></p></nav>
 <div class="frontmatter">
 <div class="title"><h1>Truncate text with gsub() using the {n} regex pattern</h1></div>
 <div class="date"><h3>2025-06-08</h3></div>
@@ -52,15 +52,15 @@ nchar(ipsum)
 </code></pre>
 <pre><code>#&gt; [1] &quot;Lorem ipsum dolor sit amet, co&quot;
 </code></pre>
-<p>If you wanted to add a trailing ellipse, you’d use <code>paste()</code> on that output:</p>
+<p>If you wanted to add a trailing ellipse, you can <code>paste0()</code> onto that output:</p>
 <pre><code class="language-r">paste0(substr(ipsum, 1, 30), &quot;...&quot;)
 </code></pre>
 <pre><code>#&gt; [1] &quot;Lorem ipsum dolor sit amet, co...&quot;
 </code></pre>
 <div class="side side-right">
-<p>Oddly enough, the assignment variant <code>`substr&lt;-`(ipsum, 31, nchar(ipsum), &quot;...&quot;)</code> fails to achieve this effect. What you get instead is “…” masking a span of same length, ranging index 31-to-33 of the string.</p>
+<p>Oddly enough, the assignment variant <code>`substr&lt;-`(ipsum, 31, nchar(ipsum), &quot;...&quot;)</code> fails to achieve this effect. What you get instead is “…” masking a span of the same length, ranging index 31-to-33 of the input string.</p>
 </div>
-<p>But if you use <code>gsub()</code> instead, you can express that in a single line:</p>
+<p>But if you use <code>gsub()</code> instead, you can express all that in a single line:</p>
 <pre><code class="language-r">gsub(&quot;^(.{30}).*$&quot;, &quot;\\1...&quot;, ipsum)
 </code></pre>
 <pre><code>#&gt; [1] &quot;Lorem ipsum dolor sit amet, co...&quot;
@@ -88,6 +88,8 @@ nchar(ipsum)
 </code></pre>
 <!-- post-hook -->
 <h1 id="chp:sessioninfo"><code>sessionInfo()</code></h1>
+<details>
+<summary>Session info</summary>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
 <pre><code>#&gt; R version 4.4.1 (2024-06-14 ucrt)
@@ -114,6 +116,7 @@ nchar(ipsum)
 #&gt; [1] compiler_4.4.1   litedown_0.7.1   tools_4.4.1      codetools_0.2-20
 #&gt; [5] xfun_0.52        commonmark_1.9.5
 </code></pre>
+</details>
 </div>
 <footer><p>© 2025 <a href="https://yjunechoe.github.io/">June Choe</a>.
 Site built with <a href="https://github.com/yihui/litedown">litedown</a>.
