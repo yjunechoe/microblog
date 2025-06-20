@@ -62,7 +62,9 @@ elNamed(c(a = 1), "b", mustFind = TRUE)
 `?elNamed` says it's for "compatibility with S+"!
 :::
 
-I don't actually use `elNamed()` in practice, though. But cool find nonetheless :)
+I don't actually use `elNamed()` in practice, though.
+
+But cool find nonetheless :)
 
 ---
 
