@@ -1,6 +1,6 @@
 ---
 title: "Truncate text with gsub() using the {n} regex pattern"
-date: "`{r} Sys.Date()`"
+date: "2025-06-08"
 knit: litedown:::knit
 ---
 

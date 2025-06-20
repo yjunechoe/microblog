@@ -1,6 +1,6 @@
 ---
 title: "Recover the position of elements in a ggrepel layer"
-date: "`{r} Sys.Date()`"
+date: "2025-06-08"
 knit: litedown:::knit
 ---
 

@@ -1,0 +1,71 @@
+---
+title: "elNamed() to safely subset from named lists and vectors"
+date: "2025-06-19"
+knit: litedown:::knit
+---
+
+<!-- pre-hook -->
+```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
+```
+
+I've always been annoyed by how subsetting missing elements by name had different behaviors for lists vs. vectors.
+
+## Base behaviors
+
+For named lists, subsetting with a non-existent name returns a `NULL`.
+
+```{r}
+list(a = 1)[["b"]]
+```
+
+For named vectors, it errors with `[[`.
+
+```{r, error = TRUE}
+c(a = 1)[["b"]]
+```
+
+The case of `[` is interesting because it returns a `NA`.
+
+```{r}
+c(a = 1)["b"]
+```
+
+I get why, but it's not so useful. It breaks nice equivalencies between lists and vectors.
+
+## `elNamed()` to subset by name
+
+Then I discovered `elNamed()` from `{methods}`. It's a sister of `el()` that subsets by name (vs. position):
+
+```{r}
+el(c(a = 1), 1)
+
+elNamed(c(a = 1), "a")
+```
+
+What's kinda cool about `elNamed()` is that it returns `NULL` for unmatched names, for _both_ lists and vectors.
+
+```{r}
+elNamed(list(a = 1), "b")
+
+elNamed(c(a = 1), "b")
+```
+
+And you can even turn it into an assertion!
+
+```{r, error = TRUE}
+elNamed(list(a = 1), "b", mustFind = TRUE)
+
+elNamed(c(a = 1), "b", mustFind = TRUE)
+```
+
+::: {.side .side-right}
+`?elNamed` says it's for "compatibility with S+"!
+:::
+
+I don't actually use `elNamed()` in practice, though. But cool find nonetheless :)
+
+---
+
+<!-- post-hook -->
+```{r post-hook, child = "_posthook.Rmd"}
+```
