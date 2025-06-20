@@ -38,12 +38,17 @@ get_post_info <- function(post) {
   # Extract first paragraph from body
   first_p <- xml_find_first(html, ".//div[@class='body']/p")
   preview <- gsub("^(.{200}\\S*).*$", "<p>\\1...</p>", xml_text(first_p))
+  len <- sum(nchar(xml_text(xml_find_all(html, ".//p"))))
   
-  list(title = title, date = date, preview = preview, link = post)
+  list(title = title, date = date, preview = preview, link = post, len = len)
 }
 
 posts_info <- lapply(posts, get_post_info)
-posts_info <- posts_info[order(sapply(posts_info, `[[`, "date"), decreasing = TRUE)]
+posts_info <- posts_info[order(
+  sapply(posts_info, `[[`, "date"),
+  sapply(posts_info, `[[`, "len"),
+  decreasing = TRUE
+)]
 
 post_listing <- lapply(posts_info, function(post) {
   tags$article(
