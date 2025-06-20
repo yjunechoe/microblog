@@ -1,7 +1,8 @@
 fuse_site <- function() {
   if (file.exists("index.html")) file.remove("index.html")
   litedown::fuse_site()
-  litedown::fuse_site("index.html")
+  Sys.sleep(2)
+  litedown::fuse_site("index.Rmd")
   browseURL("index.html")
 }
 

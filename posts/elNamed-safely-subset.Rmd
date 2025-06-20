@@ -68,6 +68,8 @@ But cool find nonetheless :)
 
 ---
 
+This post was adapted from a Mastodon exchange: https://fosstodon.org/@yjunechoe/111383917758940010
+
 <!-- post-hook -->
 ```{r post-hook, child = "_posthook.Rmd"}
 ```

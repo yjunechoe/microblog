@@ -1,0 +1,124 @@
+---
+title: "Error signalling: balancing messages and backtraces"
+date: "2025-06-19"
+knit: litedown:::knit
+---
+
+<!-- pre-hook -->
+```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
+```
+
+When your package throws an error from an internal function, you have to balance how much of that context you want to show to the user. This involves balancing the **error message** with the **backtrace**.
+
+The error message should point to the user's code - the function that causally led to the problem. The backtrace should show the path down to where the error actually occurred, so that debugging can start from the right place.
+
+I'll show three approaches to handle this balance, using `rlang::abort()`
+
+```{r, message = FALSE}
+library(rlang)
+```
+
+
+# Approach 1: Bare-bones `abort()`
+
+```{r, eval = FALSE}
+# Internal
+check1 <- function(x) {
+  if (!is.character(x)) abort("x must be character")
+}
+# Exported
+my_fun1 <- function(x) check1(x)
+
+my_fun1(123) # Error
+last_trace()
+```
+
+```{r, echo = FALSE, results = "asis"}
+library(htmltools)
+render_err <- function(x) {
+  tags$pre(class="language-plain", style="font-size:0px",
+    tags$code(class="error language-plain", style="font-size:.9rem", x)
+  )
+}
+err <- "<error/rlang_error>
+Error in `check1()`:
+! x must be character
+---
+Backtrace:
+    ▆
+ 1. └─global my_fun1(123)
+ 2.   └─global check1(x)
+Run rlang::last_trace(drop = FALSE) to see 1 hidden frame."
+render_err(err)
+```
+
+The error focuses on the internal function `check1()`. It's not very actionable for users in the top-level message, but showing it in the backtrace does help identify the internal source of the error.
+
+
+# Approach 2: Using `call = caller_env()`
+
+```{r, eval = FALSE}
+# Internal
+check2 <- function(x) {
+  if (!is.character(x)) abort("x must be character", call = caller_env())
+}
+# Exported
+my_fun2 <- function(x) check2(x)
+
+my_fun2(123) # Error
+last_trace()
+```
+
+```{r, echo = FALSE, results = "asis"}
+err <- "<error/rlang_error>
+Error in `my_fun2()`:
+! x must be character
+---
+Backtrace:
+    ▆
+ 1. └─global my_fun2(123)
+Run rlang::last_trace(drop = FALSE) to see 2 hidden frames."
+render_err(err)
+```
+
+The error message now points to the user-facing function `my_fun2()`, which is more actionable. However, only showing the backtrace down to `my_fun2()` obscures the internal function that actually threw the error. This is redundant and adds friction for the user, who now needs to `last_trace(drop = FALSE)` to see the full path.
+
+
+# Approach 3: Using `call = caller_call()`
+
+```{r, eval = FALSE}
+# Internal
+check3 <- function(x) {
+  if (!is.character(x)) abort("x must be character", call = caller_call())
+}
+# Exported
+my_fun3 <- function(x) check3(x)
+
+my_fun3(123) # Error
+last_trace()
+```
+
+```{r, echo = FALSE, results = "asis"}
+err <- "<error/rlang_error>
+Error in `my_fun3()`:
+! x must be character
+---
+Backtrace:
+    ▆
+ 1. └─global my_fun3(123)
+ 2.   └─global check3(x)
+Run rlang::last_trace(drop = FALSE) to see 1 hidden frame."
+render_err(err)
+```
+
+IMO this approach gives you the best of both worlds: the error message points to the user-facing function which is immediately useful, while the backtrace shows the full path down to the internal function which helps further contextualize the error.
+
+The error message and backtrace now serve different purposes instead of being redundant - the error message shows what the user did to cause the error (`my_fun3()`), and the backtrace shows where things actually went wrong internally (`check3()`).
+
+---
+
+This post was adapted from a Mastodon exchange: https://fosstodon.org/@yjunechoe/113403050254737010
+
+<!-- post-hook -->
+```{r post-hook, child = "_posthook.Rmd"}
+```
