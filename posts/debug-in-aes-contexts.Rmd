@@ -1,0 +1,196 @@
+---
+title: "Debug in `aes()` contexts"
+date: "2025-08-07"
+knit: litedown:::knit
+---
+
+<!-- pre-hook -->
+```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
+```
+
+You can use inspect `after_stat()` and `after_scale()` contexts, but there's a twist.
+
+## Motivation
+
+The functions `after_stat()` and `after_scale()` (and the more primitive form `stage()`) in ggplot let you access variables that are calculated internally in the layer-building pipeline. For example:
+
+```{r, dev.args = list(width = 3, height = 3)}
+library(ggplot2)
+library(colorspace)
+ggplot(mtcars, aes(cyl, fill = as.factor(cyl))) +
+  geom_bar(
+    aes(
+      y = after_stat(count),
+      color = after_scale(darken(fill))
+    ),
+    linewidth = 3
+  )
+```
+
+We typically get limited visibility into the process. Unless...
+
+## Hacks
+
+Let's use a trivial example to mess around with:
+
+```{r, dev.args = list(width = 3, height = 3)}
+p <- ggplot(data.frame(x = 1, y = 1), aes(x, y)) +
+  geom_label()
+p +
+  aes(
+    label = after_stat("text"),
+    color = after_scale("red")
+  )
+```
+
+We can grab variables in the data-mask with `ls(.top_env)` and print them:
+
+```{r}
+invisible(ggplot_build(
+  p +
+    aes(
+      label = after_stat({
+        cat("after stat variables:\n")
+        print(ls(.top_env))
+        "text"
+      }),
+      color = after_scale({
+        cat("\nafter scale variables:\n")
+        print(ls(.top_env))
+        "red"
+      })
+    )
+))
+```
+
+::: {.side .side-right}
+Note that this doesn't fully reconstruct the layer data; namely, the column order is lost.
+:::
+
+We can also print their values. Here, I'm throwing them into a dataframe to compactly display all of them
+
+```{r}
+invisible(ggplot_build(
+  p +
+    aes(
+      label = after_stat({
+        cat("after stat variables:\n")
+        print(as.data.frame(mget(ls(.top_env), .top_env)))
+        "text"
+      }),
+      color = after_scale({
+        cat("\nafter scale variables:\n")
+        print(as.data.frame(mget(ls(.top_env), .top_env)))
+        "red"
+      })
+    )
+))
+```
+
+What's funny about this is that if you add a legend to the plot, `after_stat()` is evaluated twice. 
+
+```{r}
+invisible(ggplot_build(
+  p +
+    aes(
+      label = after_stat({
+        cat("after stat variables:\n")
+        print(as.data.frame(mget(ls(.top_env), .top_env)))
+        "text"
+      }),
+      color = after_scale({
+        cat("\nafter scale variables:\n")
+        print(as.data.frame(mget(ls(.top_env), .top_env)))
+        "red"
+      })
+    ) +
+    scale_discrete_identity("label", guide = "legend")
+))
+```
+
+::: {.side .side-right}
+This is a relatively new in internal change in ggplot.
+:::
+
+That's because after scale mappings are resolved once for the guides, and then a second time for the layer geom.
+
+## Inspect the stack
+
+The only way to disambiguate the two `after_scale()` evaluations is to see where they were called from. Unfortunately, `sys.calls()` doesn't seem to work.
+
+```{r}
+invisible(ggplot_build(
+  p +
+    aes(
+      label = after_stat({
+        print(sys.calls())
+        "text"
+      }),
+      color = after_scale({
+        print(sys.calls())
+        "red"
+      })
+    ) +
+    scale_discrete_identity("label", guide = "legend")
+))
+```
+
+For some reason, you need to wrap `sys.calls()` in a function to recover the stack. So I write a IIFE here:
+
+```{r}
+invisible(ggplot_build(
+  p +
+    aes(
+      label = after_stat({
+        print((\()sys.calls())() |> length())
+        "text"
+      }),
+      color = after_scale({
+        print((\()sys.calls())() |> length())
+        "red"
+      })
+    ) +
+    scale_discrete_identity("label", guide = "legend")
+))
+```
+
+Ok good. So back on after scale, if we only want to evaluate something in the after scale context for the layer (not the legend), we wanna latch onto some identifiable call upstream. I'm gonna use called-from-`by_layer()` as the proxy here.
+
+```{r}
+called_from_by_layer <- function(x) {
+  any(as.character(sapply(x, `[[`, 1)) == "by_layer")
+}
+```
+
+So then we can use that to return different values for the layer geom vs. the legend.
+
+```{r, dev.args = list(width = 3, height = 3)}
+p +
+  aes(
+    label = after_stat("text"),
+    color = after_scale({
+      if (called_from_by_layer((\()sys.calls())())) {
+        "red"
+      } else {
+        "blue"
+      }
+    })
+  ) +
+  scale_discrete_identity("label", guide = "legend")
+```
+
+## Just use ggtrace
+
+Don't actually do all of this though. If you're curious about the internals, just use ggtrace! :)
+
+<a href="https://github.com/yjunechoe/ggtrace">
+  <img src="https://github.com/yjunechoe/ggtrace/raw/main/man/figures/logo.png" 
+       width="300" 
+       height="300">
+</a>
+
+---
+
+<!-- post-hook -->
+```{r post-hook, child = "_posthook.Rmd"}
+```
