@@ -39,7 +39,7 @@
 </ul>
 </div>
 <!-- pre-hook -->
-<p>You can use inspect <code>after_stat()</code> and <code>after_scale()</code> contexts, but there’s a twist.</p>
+<p>You can inspect <code>after_stat()</code> and <code>after_scale()</code> contexts, but there’s a twist.</p>
 <h2 id="sec:motivation">Motivation</h2>
 <p>The functions <code>after_stat()</code> and <code>after_scale()</code> (and the more primitive form <code>stage()</code>) in ggplot let you access variables that are calculated internally in the layer-building pipeline. For example:</p>
 <pre><code class="language-r">library(ggplot2)
@@ -222,7 +222,7 @@ p +
 </code></pre>
 <p><img src="posts/debug-in-aes-contexts__files/chunk-10-1.png" alt="" /></p>
 <h2 id="sec:just-use-ggtrace">Just use ggtrace</h2>
-<p>Don't actually do all of this though. If you're curious about the internals, just use ggtrace! :)</p>
+<p>Don’t actually do all of this though. If you’re curious about the internals, just use ggtrace! :)</p>
 <a href="https://github.com/yjunechoe/ggtrace">
   <img src="https://github.com/yjunechoe/ggtrace/raw/main/man/figures/logo.png" 
        width="300" 

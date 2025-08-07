@@ -8,7 +8,7 @@ knit: litedown:::knit
 ```{r pre-hook, child = "_prehook.Rmd", include = FALSE, order = 0}
 ```
 
-You can use inspect `after_stat()` and `after_scale()` contexts, but there's a twist.
+You can inspect `after_stat()` and `after_scale()` contexts, but there's a twist.
 
 ## Motivation
 
