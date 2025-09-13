@@ -87,7 +87,7 @@ invisible(ggplot_build(
 ))
 ```
 
-What's funny about this is that if you add a legend to the plot, `after_stat()` is evaluated twice. 
+What's funny about this is that if you add a legend to the plot, `after_scale()` is evaluated twice. 
 
 ```{r}
 invisible(ggplot_build(
